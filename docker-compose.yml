@@ -1,0 +1,30 @@
+version: "1"
+services:
+    back:
+        build: docker/backend
+        ports:
+            - "8000:80"
+        volumes:
+            - ".:/var/www/testlaravelvuejs"
+            - "composer-cache:/composer-cache"
+        working_dir: /var/www/testlaravelvuejs
+    front:
+        build: docker/frontend
+        ports:
+            - "8080:8080"
+        user: yarn
+        volumes:
+            - "./client:/var/www/testlaravelvuejs/client"
+            - "yarn-cache:/home/yarn/.cache/yarn"
+        working_dir: /var/www/testlaravelvuejs/client
+    db:
+        build: docker/database
+        ports:
+            - "5436:5432"
+        user: postgres
+        volumes:
+            - "postgresql-data:/var/lib/postgresql/9.6/main"
+volumes:
+    yarn-cache:
+    composer-cache:
+    postgresql-data:
