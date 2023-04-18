@@ -1,30 +1,67 @@
-version: "1"
+version: "3.8"
 services:
-    back:
-        build: docker/backend
-        ports:
-            - "8000:80"
+    httpd:
+        container_name: httpd
+        build:
+            context: .
+            dockerfile: ./docker/backend/Dockerfile_httpd_2_4
+        restart: always
         volumes:
-            - ".:/var/www/testlaravelvuejs"
-            - "composer-cache:/composer-cache"
-        working_dir: /var/www/testlaravelvuejs
-    front:
-        build: docker/frontend
+            - /etc/localtime:/etc/localtime:ro
+            - ~/Projects/:/var/www
+            - ./docker/backend/httpd.conf:/usr/local/apache2/conf/httpd.conf
+            - ./docker/backend/vhosts/:/usr/local/apache2/conf/vhosts
+            - ./docker/backend/logs/:/var/log/apache2
+        networks:
+            default:
+                aliases:
+                    - local.izzy.cf.com
         ports:
-            - "8080:8080"
-        user: yarn
+            - "80:80"
+            - "443:443"
+        entrypoint:
+            - /bin/sh
+            - -c
+            - ip -4 route list match 0/0 | awk '{print $$3" host.docker.internal"}' >> /etc/hosts && httpd-foreground
+    php_8_1:
+        container_name: php_8_1
+        build:
+            context: .
+            dockerfile: ./docker/backend/Dockerfile_php_8_1
+        restart: always
         volumes:
-            - "./client:/var/www/testlaravelvuejs/client"
-            - "yarn-cache:/home/yarn/.cache/yarn"
-        working_dir: /var/www/testlaravelvuejs/client
-    db:
-        build: docker/database
+            - /etc/localtime:/etc/localtime:ro
+            - ~/Projects/:/var/www
+            - ./docker/backend/php.ini:/usr/local/etc/php/php.ini
+        expose:
+            - 9000
+    node_18:
+        container_name: node_18
+        build:
+            context: ./docker/frontend
+            dockerfile: ./Dockerfile_node_18
+        restart: always
+        depends_on:
+            - php_8_1
+        volumes:
+            - ~/Projects/:/var/www
+            - ~/.ssh:/home/node/.ssh
+    pg:
+        container_name: pg_container
+        image: postgres
+        restart: always
+        #THIS MUST BE ADDED AT SERVICE LEVEL
+        shm_size: 1gb
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: test_db
+            PGDATA: /var/lib/postgresql/data/some_name/
+        volumes:
+            - ./docker/database/postgresql/data:/var/lib/postgresql/data
+            - ~/Projects/Dumps/:/home/root/dump_data
+            - ./docker/database/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
         ports:
-            - "5436:5432"
-        user: postgres
-        volumes:
-            - "postgresql-data:/var/lib/postgresql/9.6/main"
+            - "5432:5432"
 volumes:
-    yarn-cache:
-    composer-cache:
-    postgresql-data:
+    db_data:

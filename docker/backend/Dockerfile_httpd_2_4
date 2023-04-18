@@ -1,0 +1,11 @@
+FROM httpd:2.4
+
+# Install Libs
+RUN apt-get update \
+    && apt-get install -y \
+        iproute2
+
+# File mode trick
+RUN usermod -u 1001 www-data
+
+WORKDIR /var/www

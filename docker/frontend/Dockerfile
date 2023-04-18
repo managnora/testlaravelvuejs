@@ -1,24 +1,25 @@
-FROM ubuntu:22.04
+FROM node:18
 
-RUN apt-get update && apt-get -y install curl \
-&& curl -sL https://deb.nodesource.com/setup_18.x | bash - \
-&& apt-get install -y nodejs
+# Create app directory
+WORKDIR /usr/src/app
 
-# Install yarn
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-&& echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
-&& apt-get update && apt-get install yarn=1.7.0-1
+# Install app dependencies
+COPY package.json ./
 
-# Install bzip2
-RUN apt-get update && apt-get install bzip2 && apt-get -y install libfontconfig
+RUN apt-get update \
+    && apt-get install -y \
+    libpng-dev \
+    build-essential \
+    make
 
-# Add user yarn for cache dir
-RUN groupadd -g 1000 yarn \
-&& useradd -u 1000 -g yarn -d /home/yarn -m yarn \
-&& mkdir /home/yarn/.cache /home/yarn/.cache/yarn \
-&& chown -R yarn:yarn /home/yarn/.cache
+RUN npm install
 
-# Expose port 8080
-EXPOSE 8080
+RUN npm install -g n
 
-CMD ["yarn", "run", "dev"]
+RUN mkdir /home/node/.ssh
+
+# Bundle app source
+COPY . .
+
+EXPOSE 3000
+CMD [ "node", "server.js" ]
