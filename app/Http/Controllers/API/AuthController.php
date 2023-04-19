@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\StoreUserRequest;
+use App\Models\User;
 use Core\UseCase\Auth\CreateUser;
 use Core\UseCase\Auth\Login;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +14,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends BaseController
 {
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function users(): \Illuminate\Database\Eloquent\Collection
+    {
+        try {
+            return User::all();
+        } catch (\Exception $exception) {
+            dd($exception);
+        }
+    }
 
     /**
      * @param StoreUserRequest $request

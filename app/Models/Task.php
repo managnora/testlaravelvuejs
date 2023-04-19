@@ -12,6 +12,12 @@ class Task extends Model
     use HasFactory;
 
     /**
+     * @var string
+     */
+    protected $table = 'tasks';
+    protected $primaryKey = 'id';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>

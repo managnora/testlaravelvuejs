@@ -12,6 +12,12 @@ class Category extends Model
     use HasFactory;
 
     /**
+     * @var string
+     */
+    protected $table = 'categories';
+    protected $primaryKey = 'id';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>

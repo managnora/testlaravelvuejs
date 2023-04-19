@@ -201,6 +201,10 @@ return [
         App\Providers\Adapter\HelperServiceProvider::class,
         App\Providers\Adapter\Service\UserServiceProvider::class,
         App\Providers\Adapter\Service\TaskServiceProvider::class,
+        App\Providers\Adapter\Service\CommentServiceProvider::class,
+        App\Providers\Adapter\Service\PriorityServiceProvider::class,
+        App\Providers\Adapter\Service\DepartmentServiceProvider::class,
+        App\Providers\Adapter\Service\CategoryServiceProvider::class,
 
     ],
 
